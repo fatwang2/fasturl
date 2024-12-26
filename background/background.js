@@ -60,17 +60,16 @@ async function writeClipboard(text) {
 // 向content script发送消息
 async function sendMessageToContentScript(tabId, message) {
   try {
-    // 先尝试注入content script
-    await chrome.scripting.executeScript({
-      target: { tabId },
-      files: ['content/content.js']
+    console.log('Sending message to content script:', {
+      tabId,
+      messageType: message.type,
+      contentLength: message.content?.length
     });
     
-    // 等待一小段时间确保content script加载完成
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
-    // 发送消息
-    await chrome.tabs.sendMessage(tabId, message);
+    // 直接发送消息
+    const response = await chrome.tabs.sendMessage(tabId, message);
+    console.log('Message sent, response:', response);
+    return response;
   } catch (error) {
     console.error('Failed to send message to content script:', error);
     throw error;

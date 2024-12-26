@@ -1,44 +1,56 @@
 // 监听来自 background script 的消息
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  console.log('Content script received message:', {
+    type: message.type,
+    contentLength: message.content?.length
+  });
+
   if (message.type === 'UPDATE_INPUT') {
     try {
-      // 获取当前焦点元素
-      const activeElement = document.activeElement;
+      console.log('Attempting to paste content...');
       
-      // 检查元素是否可编辑
-      if (activeElement && (
-        activeElement.isContentEditable || 
-        activeElement.tagName === 'TEXTAREA' || 
-        activeElement.tagName === 'INPUT'
-      )) {
-        // 更新元素内容
-        if (activeElement.isContentEditable) {
-          activeElement.innerHTML = message.content;
-        } else {
-          activeElement.value = message.content;
-        }
-        
-        // 触发 input 事件以通知其他监听器
-        activeElement.dispatchEvent(new Event('input', { bubbles: true }));
-        
-        sendResponse({ success: true });
-      } else {
-        sendResponse({ 
-          success: false, 
-          error: '没有找到可编辑的输入框' 
+      // 获取所有可能的输入元素
+      const inputs = document.querySelectorAll('input[type="text"], textarea, [contenteditable="true"]');
+      console.log('Found input elements:', inputs.length);
+
+      // 找到最近获得焦点的输入框
+      const lastFocusedInput = Array.from(inputs).find(input => {
+        const rect = input.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0 && window.getComputedStyle(input).display !== 'none';
+      });
+
+      if (lastFocusedInput) {
+        console.log('Found target input:', {
+          tag: lastFocusedInput.tagName,
+          type: lastFocusedInput.type,
+          isVisible: lastFocusedInput.offsetParent !== null
         });
+
+        // 聚焦到输入框
+        lastFocusedInput.focus();
+        
+        // 触发粘贴事件
+        const clipboardEvent = new ClipboardEvent('paste', {
+          bubbles: true,
+          cancelable: true,
+          clipboardData: new DataTransfer()
+        });
+        
+        clipboardEvent.clipboardData.setData('text/plain', message.content);
+        lastFocusedInput.dispatchEvent(clipboardEvent);
+        console.log('Paste event triggered with content');
+      } else {
+        console.log('No suitable input element found');
       }
+      
+      sendResponse({ success: true });
     } catch (error) {
       console.error('Content script error:', error);
-      sendResponse({ 
-        success: false, 
-        error: error.message 
-      });
+      sendResponse({ success: false, error: error.message });
     }
   }
   
-  // 必须返回 true 以支持异步响应
   return true;
 });
 
-console.log('Content script loaded'); 
+console.log('Content script loaded and ready'); 
