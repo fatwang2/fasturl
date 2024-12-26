@@ -12,9 +12,6 @@
     "tabs",
     "commands"
   ],
-  "host_permissions": [
-    "*://*/*"
-  ],
   "background": {
     "service_worker": "background/background.js",
     "type": "module"
