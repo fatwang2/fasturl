@@ -14,10 +14,18 @@ A Chrome extension for quickly fetching and converting web content to Markdown f
 
 ## Installation
 
-1. Clone this repository or download the source code
-2. Open Chrome and navigate to `chrome://extensions/`
-3. Enable "Developer mode" in the top right corner
-4. Click "Load unpacked" and select the extension directory
+### Chrome Web Store (Coming Soon)
+The extension is currently under review by the Chrome Web Store. Once approved, you'll be able to install it directly from the store.
+
+### Manual Installation (Before Store Approval)
+1. Download the latest release ZIP file from [GitHub Releases](https://github.com/fatwang2/fasturl/releases)
+2. Unzip the downloaded file
+3. Open Chrome and navigate to `chrome://extensions/`
+4. Enable "Developer mode" in the top right corner
+5. Click "Load unpacked" and select the unzipped folder
+6. The extension icon should appear in your Chrome toolbar
+
+Note: When using developer mode, Chrome will show a warning message on startup. This is normal and you can safely dismiss it. The warning will go away once the extension is available on the Chrome Web Store.
 
 ## Usage
 
