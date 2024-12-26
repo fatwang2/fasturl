@@ -51,9 +51,7 @@ class ChromeScraper extends ScraperInterface {
   async scrape(url) {
     try {
       // ==================== URL 处理和请求部分 ====================
-      console.log('Original URL:', url);
       const validUrl = this.validateUrl(url);
-      console.log('Validated URL:', validUrl);
 
       // 使用fetch API获取内容
       console.log('Fetching URL...');
@@ -78,12 +76,12 @@ class ChromeScraper extends ScraperInterface {
       if (!response.ok) {
         if (response.status === 403) {
           throw new ScraperError(
-            '访问被拒绝，该网站可能不允许直接访问',
+            'Access denied. This website may not allow direct access',
             ERROR_TYPES.PERMISSION_ERROR
           );
         }
         throw new ScraperError(
-          `获取内容失败: ${response.status} ${response.statusText}`,
+          `Failed to fetch content: ${response.status} ${response.statusText}`,
           ERROR_TYPES.NETWORK_ERROR
         );
       }
@@ -196,9 +194,6 @@ class ChromeScraper extends ScraperInterface {
                         md += htmlToMarkdown(child);
                       }
                     }
-                  } else {
-                    const text = element.textContent.trim();
-                    if (text) md += text + ' ';
                   }
               }
               
@@ -211,17 +206,10 @@ class ChromeScraper extends ScraperInterface {
              */
             function cleanMarkdown(markdown) {
               return markdown
-                // 先清理特殊文本
-                .replace(/\*\*[^*]+\*\*Public/g, '')
-                .replace(/\*[^*]+subscription status[^*]*\*/g, '')
-                .replace(/\[.*?\]\(javascript:.*?\)/g, '')
-                .replace(/×|✕|✖/g, '')
-                .replace(/\s*[,，]\s*/g, '，')
-                .replace(/([，。！？；：])\1+/g, '$1')
-                // 清理连续的空白字符（包括空格、制表符等）
-                .replace(/[ \t]+/g, ' ')
                 // 清理连续的换行（保留段落格式）
                 .replace(/\n\s*\n\s*\n+/g, '\n\n')
+                // 清理连续的空白字符
+                .replace(/[ \t]+/g, ' ')
                 .trim();
             }
 
@@ -237,27 +225,17 @@ class ChromeScraper extends ScraperInterface {
                 clone.querySelectorAll(selector).forEach(el => el.remove());
               });
 
-              // 获取并清理标题
-              const title = doc.title?.trim()
-                .replace(/\s+/g, ' ')
-                .replace(/\*\*[^*]+\*\*Public/, '')
-                .replace(/\*[^*]+subscription status[^*]*\*/, '')
-                .trim();
+              // 简化标题处理，只保留基本清理
+              const title = doc.title?.trim();
 
               // 转换内容
               const markdown = htmlToMarkdown(clone.body);
-              
-              // 使用 JSON.stringify 和 parse 来确保换行符被正确处理
-              const cleanedMarkdown = cleanMarkdown(markdown)
+              const cleanedMarkdown = cleanMarkdown(markdown);
 
-              // 组合标题和内容，确保正确的换行
-              const contentWithTitle = title ? 
-                `# ${title}\n\n${cleanedMarkdown}` : 
-                cleanedMarkdown;
-
+              // 组合标题和内容
               return {
                 title: title,
-                content: contentWithTitle
+                content: title ? `# ${title}\n\n${cleanedMarkdown}` : cleanedMarkdown
               };
             }
 

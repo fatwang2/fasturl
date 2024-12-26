@@ -1,15 +1,16 @@
 {
   "manifest_version": 3,
   "name": "FastURL",
-  "version": "1.0",
-  "description": "快速获取URL内容的Chrome插件",
+  "version": "0.0.1",
+  "description": "A fast way to fetch URL content",
   "permissions": [
     "clipboardRead",
     "clipboardWrite",
     "activeTab",
     "notifications",
     "scripting",
-    "tabs"
+    "tabs",
+    "commands"
   ],
   "host_permissions": [
     "*://*/*"
@@ -35,14 +36,14 @@
   "commands": {
     "fetch-url": {
       "suggested_key": {
-        "default": "Ctrl+Shift+F",
-        "mac": "Command+Shift+F"
+        "default": "Alt+F",
+        "mac": "Alt+F"
       },
-      "description": "获取URL内容"
+      "description": "Fetch URL content"
     }
   },
   "icons": {
-    "48": "icon.png",
-    "128": "icon.png"
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
   }
 } 

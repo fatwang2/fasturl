@@ -25,7 +25,7 @@ class ScraperInterface {
    */
   validateUrl(url) {
     if (!url) {
-      throw new ScraperError('URL不能为空', ERROR_TYPES.INVALID_URL);
+      throw new ScraperError('URL cannot be empty', ERROR_TYPES.INVALID_URL);
     }
 
     // 移除首尾空格
@@ -42,14 +42,14 @@ class ScraperInterface {
 
       // 检查是否有效的主机名
       if (!urlObject.hostname) {
-        throw new ScraperError('无效的域名', ERROR_TYPES.INVALID_URL);
+        throw new ScraperError('Invalid domain name', ERROR_TYPES.INVALID_URL);
       }
 
       // 返回规范化的URL
       return urlObject.href;
     } catch (e) {
       console.error('URL validation error:', e);
-      throw new ScraperError('无效的URL格式，请确保输入正确的网址', ERROR_TYPES.INVALID_URL);
+      throw new ScraperError('Invalid URL format. Please ensure the URL is correct', ERROR_TYPES.INVALID_URL);
     }
   }
 

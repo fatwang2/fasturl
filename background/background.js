@@ -4,11 +4,14 @@ const scraper = new ChromeScraper();
 
 // 创建并显示通知
 function showNotification(message, isError = false) {
-  chrome.notifications.create({
+  const notificationId = 'fasturl-' + Date.now();
+  chrome.notifications.create(notificationId, {
     type: 'basic',
-    iconUrl: '/icon.png',
-    title: isError ? 'Error' : 'Success',
+    iconUrl: '/icons/icon48.png',
+    title: isError ? 'Error' : 'FastURL',
     message: message
+  }, (id) => {
+    console.log('Notification created:', id);
   });
 }
 
@@ -104,10 +107,21 @@ chrome.commands.onCommand.addListener(async (command) => {
         content: content
       });
       
-      showNotification('内容已获取并复制到剪贴板');
     } catch (error) {
       console.error('Error:', error);
-      showNotification(error.message, true);
+      if (error.message.includes('clipboard')) {
+        showNotification('Failed to access clipboard', true);
+      } else if (error.message.includes('URL')) {
+        showNotification('Invalid URL', true);
+      } else {
+        showNotification('Failed to fetch content', true);
+      }
     }
+  }
+});
+
+chrome.runtime.onInstalled.addListener(async (details) => {
+  if (details.reason === chrome.runtime.OnInstalledReason.INSTALL) {
+    showNotification('FastURL installed. Press ⌥F to fetch URL content');
   }
 }); 
