@@ -25,7 +25,26 @@ const ELEMENTS_TO_REMOVE = [
   '.js-notification-shelf',
   '.js-skip-to-content',
   '.auth-form',
-  '.session-authentication'
+  '.session-authentication',
+  
+  // 添加更多会话和认证相关选择器
+  '[data-testid*="session"]',
+  '[data-testid*="auth"]',
+  '[class*="session"]',
+  '[class*="auth"]',
+  '[id*="session"]',
+  '[id*="auth"]',
+  '.notification',
+  '.alert',
+  '[role="status"]',
+  
+  // 添加更多选择器
+  '.session-status',
+  '.session-message',
+  '.auth-status',
+  '.auth-message',
+  '[data-refresh-url]',  // 刷新相关的元素
+  '[data-reload-url]'    // 重载相关的元素
 ];
 
 class ChromeScraper extends ScraperInterface {
@@ -100,12 +119,12 @@ class ChromeScraper extends ScraperInterface {
                 case 'h5':
                 case 'h6':
                   const level = element.tagName[1];
-                  md += '\n' + '#'.repeat(level) + ' ' + element.textContent.trim() + '\n';
+                  md += '#'.repeat(level) + ' ' + element.textContent.trim() + '\n';
                   break;
                 
                 // 段落处理
                 case 'p':
-                  md += '\n' + element.textContent.trim() + '\n';
+                  md += element.textContent.trim() + '\n';
                   break;
                 
                 // 列表处理
@@ -114,10 +133,10 @@ class ChromeScraper extends ScraperInterface {
                   element.querySelectorAll('li').forEach(li => {
                     md += '* ' + li.textContent.trim() + '\n';
                   });
+                  md += '\n';
                   break;
                 
                 case 'ol':
-                  md += '\n';
                   element.querySelectorAll('li').forEach((li, index) => {
                     md += `${index + 1}. ${li.textContent.trim()}\n`;
                   });
@@ -149,17 +168,17 @@ class ChromeScraper extends ScraperInterface {
                   break;
                 
                 case 'pre':
-                  md += '\n```\n' + element.textContent.trim() + '\n```\n';
+                  md += '```\n' + element.textContent.trim() + '\n```\n';
                   break;
                 
                 // 引用处理
                 case 'blockquote':
-                  md += '\n> ' + element.textContent.trim().replace(/\n/g, '\n> ') + '\n';
+                  md += '> ' + element.textContent.trim().replace(/\n/g, '\n> ') + '\n';
                   break;
                 
                 // 分隔线
                 case 'hr':
-                  md += '\n---\n';
+                  md += '---\n';
                   break;
                 
                 case 'br':
@@ -192,19 +211,17 @@ class ChromeScraper extends ScraperInterface {
              */
             function cleanMarkdown(markdown) {
               return markdown
-                // 基础格式清理
-                .replace(/\n{3,}/g, '\n\n')     // 移除多余的空行
-                .replace(/ {2,}/g, ' ')         // 移除多余的空格
-                .replace(/\[.*?\]\(javascript:.*?\)/g, '')  // 移除 javascript: 链接
-                .replace(/×|✕|✖/g, '')  // 移除关闭按钮符号
-                .replace(/\s*[,，]\s*/g, '，')  // 规范化逗号
-                .replace(/([，。！？；：])\1+/g, '$1')  // 移除重复的标点
-                // 移除会话相关文本
-                .replace(/Skip to content|Skip to main content/g, '')
-                .replace(/You signed (?:in|out) (?:with|in) another tab or window\./g, '')
-                .replace(/Reload to refresh your session\./g, '')
-                .replace(/Dismiss alert|Dismiss|Close/g, '')
-                .replace(/\[Reload\]\([^)]+\)/g, '')  // 移除 Reload 链接
+                // 先清理特殊文本
+                .replace(/\*\*[^*]+\*\*Public/g, '')
+                .replace(/\*[^*]+subscription status[^*]*\*/g, '')
+                .replace(/\[.*?\]\(javascript:.*?\)/g, '')
+                .replace(/×|✕|✖/g, '')
+                .replace(/\s*[,，]\s*/g, '，')
+                .replace(/([，。！？；：])\1+/g, '$1')
+                // 清理连续的空白字符（包括空格、制表符等）
+                .replace(/[ \t]+/g, ' ')
+                // 清理连续的换行（保留段落格式）
+                .replace(/\n\s*\n\s*\n+/g, '\n\n')
                 .trim();
             }
 
@@ -220,14 +237,27 @@ class ChromeScraper extends ScraperInterface {
                 clone.querySelectorAll(selector).forEach(el => el.remove());
               });
 
-              // 转换为Markdown并清理
+              // 获取并清理标题
+              const title = doc.title?.trim()
+                .replace(/\s+/g, ' ')
+                .replace(/\*\*[^*]+\*\*Public/, '')
+                .replace(/\*[^*]+subscription status[^*]*\*/, '')
+                .trim();
+
+              // 转换内容
               const markdown = htmlToMarkdown(clone.body);
-              const cleanedMarkdown = cleanMarkdown(markdown);
+              
+              // 使用 JSON.stringify 和 parse 来确保换行符被正确处理
+              const cleanedMarkdown = cleanMarkdown(markdown)
+
+              // 组合标题和内容，确保正确的换行
+              const contentWithTitle = title ? 
+                `# ${title}\n\n${cleanedMarkdown}` : 
+                cleanedMarkdown;
 
               return {
-                title: doc.title,
-                content: cleanedMarkdown,
-                textContent: cleanedMarkdown
+                title: title,
+                content: contentWithTitle
               };
             }
 
@@ -235,13 +265,12 @@ class ChromeScraper extends ScraperInterface {
             const article = extractContent(doc);
             console.log('Parsing result:', {
               title: article.title,
-              length: article.textContent.length,
-              excerpt: article.textContent.slice(0, 150) + '...'
+              length: article.content.length
             });
             
             return {
               success: true,
-              content: article.textContent,
+              content: article.content,
               title: article.title
             };
           } catch (error) {
