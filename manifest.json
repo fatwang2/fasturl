@@ -1,0 +1,47 @@
+{
+  "manifest_version": 3,
+  "name": "FastURL",
+  "version": "1.0",
+  "description": "快速获取URL内容的Chrome插件",
+  "permissions": [
+    "clipboardRead",
+    "clipboardWrite",
+    "activeTab",
+    "notifications",
+    "scripting"
+  ],
+  "host_permissions": [
+    "*://*/*"
+  ],
+  "background": {
+    "service_worker": "background/background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content/content.js"],
+      "run_at": "document_start"
+    }
+  ],
+  "web_accessible_resources": [{
+    "resources": [
+      "services/scraper/*.js",
+      "lib/*.js"
+    ],
+    "matches": ["<all_urls>"]
+  }],
+  "commands": {
+    "fetch-url": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+F",
+        "mac": "Command+Shift+F"
+      },
+      "description": "获取URL内容"
+    }
+  },
+  "icons": {
+    "48": "icon.png",
+    "128": "icon.png"
+  }
+} 
