@@ -122,6 +122,13 @@ chrome.commands.onCommand.addListener(async (command) => {
 
 chrome.runtime.onInstalled.addListener(async (details) => {
   if (details.reason === chrome.runtime.OnInstalledReason.INSTALL) {
+    // 检查快捷键注册状态
+    const commands = await chrome.commands.getAll();
+    console.log('Registered commands:', commands);
+    
+    const fetchCommand = commands.find(cmd => cmd.name === 'fetch-url');
+    console.log('Fetch command status:', fetchCommand);
+    
     showNotification('FastURL installed. Press ⌥F to fetch URL content');
   }
 }); 
