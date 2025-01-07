@@ -14,18 +14,8 @@
 
 ## 安装方法
 
-### Chrome 网上应用店（即将上线）
-扩展程序目前正在 Chrome 网上应用店审核中。审核通过后，您就可以直接从商店安装。
-
-### 手动安装（商店审核前）
-1. 从 [GitHub Releases](https://github.com/fatwang2/fasturl/releases) 下载最新的 ZIP 文件
-2. 解压下载的文件
-3. 打开 Chrome 浏览器，访问 `chrome://extensions/`
-4. 在右上角启用"开发者模式"
-5. 点击"加载已解压的扩展程序"，选择解压后的文件夹
-6. 扩展图标应该会出现在 Chrome 工具栏中
-
-注意：使用开发者模式时，Chrome 会在启动时显示警告消息。这是正常的，您可以安全地忽略它。一旦扩展在 Chrome 网上应用店上架，这个警告就会消失。
+### Chrome 应用商店
+搜索 `FastURL` ，或者直接点击[链接](https://chromewebstore.google.com/detail/fasturl/gkciolabmnjpnngdgoeljpdpaddbjbhj)，即可下载安装
 
 ## 使用方法
 
